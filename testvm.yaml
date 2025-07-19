@@ -1,0 +1,38 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: win-upload-test
+spec:
+  running: false
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: win-upload-test
+    spec:
+      domain:
+        cpu:
+          cores: 2
+        resources:
+          requests:
+            memory: 2Gi
+        devices:
+          disks:
+            - name: cdrom
+              cdrom:
+                bus: sata
+            - name: virtio
+              cdrom:
+                bus: sata
+      volumes:
+        - name: cdrom
+          persistentVolumeClaim:
+            claimName: windows-iso
+        - name: virtio
+          persistentVolumeClaim:
+            claimName: virtio-iso
+      networks:
+        - name: default
+          pod: {}
+      interfaces:
+        - name: default
+          masquerade: {}
