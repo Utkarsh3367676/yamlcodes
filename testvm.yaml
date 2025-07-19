@@ -23,6 +23,12 @@ spec:
             - name: virtio
               cdrom:
                 bus: sata
+          interfaces:
+            - name: default
+              masquerade: {}
+      networks:
+        - name: default
+          pod: {}
       volumes:
         - name: cdrom
           persistentVolumeClaim:
@@ -30,9 +36,3 @@ spec:
         - name: virtio
           persistentVolumeClaim:
             claimName: virtio-iso
-      networks:
-        - name: default
-          pod: {}
-      interfaces:
-        - name: default
-          masquerade: {}
