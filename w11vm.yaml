@@ -12,7 +12,7 @@ spec:
       domain:
         firmware:
           bootloader:
-            bios: {}  # ✅ Use BIOS instead of UEFI
+            bios: {}  # Use BIOS instead of UEFI
         cpu:
           cores: 2
         resources:
@@ -20,15 +20,15 @@ spec:
             memory: 4Gi
         devices:
           disks:
-            - name: cdrom-disk  # ✅ ISO as CD-ROM, bootable
+            - name: cdrom-disk
               cdrom:
                 bus: sata
-                bootOrder: 1
-            - name: harddisk     # Empty hard disk to install into
+              bootOrder: 1
+            - name: harddisk
               disk:
                 bus: virtio
-                bootOrder: 2
-            - name: virtio-disk  # Drivers CD-ROM
+              bootOrder: 2
+            - name: virtio-disk
               cdrom:
                 bus: sata
           interfaces:
