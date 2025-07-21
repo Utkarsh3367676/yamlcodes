@@ -10,6 +10,9 @@ spec:
         kubevirt.io/domain: windows-vdi
     spec:
       domain:
+        firmware:
+          bootloader:
+            bios: {}  # ✅ Use BIOS instead of UEFI
         cpu:
           cores: 2
         resources:
@@ -17,13 +20,15 @@ spec:
             memory: 4Gi
         devices:
           disks:
-            - name: harddisk
-              disk:
-                bus: virtio
-            - name: cdrom-disk
+            - name: cdrom-disk  # ✅ ISO as CD-ROM, bootable
               cdrom:
                 bus: sata
-            - name: virtio-disk
+                bootOrder: 1
+            - name: harddisk     # Empty hard disk to install into
+              disk:
+                bus: virtio
+                bootOrder: 2
+            - name: virtio-disk  # Drivers CD-ROM
               cdrom:
                 bus: sata
           interfaces:
@@ -33,12 +38,12 @@ spec:
         - name: default
           pod: {}
       volumes:
-        - name: harddisk
-          persistentVolumeClaim:
-            claimName: win-vdi-disk
         - name: cdrom-disk
           persistentVolumeClaim:
             claimName: windows-iso
+        - name: harddisk
+          persistentVolumeClaim:
+            claimName: win-vdi-disk
         - name: virtio-disk
           persistentVolumeClaim:
             claimName: virtio-iso
