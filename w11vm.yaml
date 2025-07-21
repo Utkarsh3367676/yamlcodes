@@ -12,13 +12,18 @@ spec:
       domain:
         firmware:
           bootloader:
-            bios: {}  # Use BIOS instead of UEFI
+            efi: {}  # Use UEFI boot
+        features:
+          smm:
+            enabled: true  # Required for Secure Boot
         cpu:
           cores: 2
         resources:
           requests:
-            memory: 4Gi
+            memory: 6Gi  # More than minimum 4GiB
         devices:
+          tpm:
+            type: tpm2  # TPM 2.0 required by Windows 11
           disks:
             - name: cdrom-disk
               cdrom:
