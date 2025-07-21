@@ -12,18 +12,17 @@ spec:
       domain:
         firmware:
           bootloader:
-            efi: {}  # Use UEFI boot
+            efi: {}
+          secureBoot: true
         features:
           smm:
-            enabled: true  # Required for Secure Boot
+            enabled: true
         cpu:
           cores: 2
         resources:
           requests:
-            memory: 6Gi  # More than minimum 4GiB
+            memory: 6Gi
         devices:
-          tpm:
-            type: tpm2  # TPM 2.0 required by Windows 11
           disks:
             - name: cdrom-disk
               cdrom:
@@ -39,6 +38,8 @@ spec:
           interfaces:
             - name: default
               masquerade: {}
+          tpm:
+            deviceName: tpm0
       networks:
         - name: default
           pod: {}
