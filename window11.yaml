@@ -1,0 +1,55 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: windows-vdi
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        kubevirt.io/domain: windows-vdi #newedit
+    spec:
+      domain:
+        firmware:
+          bootloader:
+            efi: {}
+          secureBoot: true
+        features:
+          smm:
+            enabled: true
+        cpu:
+          cores: 2
+        resources:
+          requests:
+            memory: 6Gi
+        devices:
+          disks:
+            - name: cdrom-disk
+              cdrom:
+                bus: sata
+              bootOrder: 1
+            - name: harddisk
+              disk:
+                bus: virtio
+              bootOrder: 2
+            - name: virtio-disk
+              cdrom:
+                bus: sata
+          interfaces:
+            - name: default
+              masquerade: {}
+          tpm:
+            deviceName: tpm0
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: cdrom-disk
+          persistentVolumeClaim:
+            claimName: windows-iso
+        - name: harddisk
+          persistentVolumeClaim:
+            claimName: win-vdi-disk
+        - name: virtio-disk
+          persistentVolumeClaim:
+            claimName: virtio-iso
