@@ -36,3 +36,6 @@ spec:
         - name: virtio
           persistentVolumeClaim:
             claimName: virtio-iso
+
+
+https://docs.google.com/document/d/1gSrblmCNHZDJiG-rBrToL3hXl85KU6iTFbogOvWRzK4/edit?usp=sharing
