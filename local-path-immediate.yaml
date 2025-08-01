@@ -3,8 +3,8 @@ kind: StorageClass
 metadata:
   name: local-path-immediate
   annotations:
-    storageclass.kubernetes.io/is-default-class: "true"  # Optional
-provisioner: rancher.io/local-path
+    storageclass.kubernetes.io/is-default-class: "false"  # Don't override default if not intended
+provisioner: rancher.io/local-path-immediate
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
 ---
@@ -16,13 +16,13 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: local-path-provisioner-service-account
+  name: local-path-immediate-sa
   namespace: local-path-immediate-ns
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: local-path-provisioner-role-immediate
+  name: local-path-immediate-role
 rules:
   - apiGroups: [""]
     resources: ["nodes", "persistentvolumeclaims", "persistentvolumes"]
@@ -34,57 +34,59 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: local-path-provisioner-bind-immediate
+  name: local-path-immediate-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: local-path-provisioner-role-immediate
+  name: local-path-immediate-role
 subjects:
   - kind: ServiceAccount
-    name: local-path-provisioner-service-account
+    name: local-path-immediate-sa
     namespace: local-path-immediate-ns
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: local-path-provisioner
+  name: local-path-immediate
   namespace: local-path-immediate-ns
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: local-path-provisioner
+      app: local-path-immediate
   template:
     metadata:
       labels:
-        app: local-path-provisioner
+        app: local-path-immediate
     spec:
-      serviceAccountName: local-path-provisioner-service-account
+      serviceAccountName: local-path-immediate-sa
       containers:
-        - name: provisioner
-          image: rancher/local-path-provisioner:latest
+        - name: local-path-immediate-container
+          image: rancher/local-path-provisioner:v0.0.24
           imagePullPolicy: IfNotPresent
           command:
             - local-path-provisioner
             - --config
             - /etc/config/config.json
+            - --provisioner-name
+            - rancher.io/local-path-immediate
           volumeMounts:
             - mountPath: /etc/config/
               name: config-volume
-            - mountPath: /opt/local-path-provisioner
+            - mountPath: /opt/local-path-immediate
               name: local-path
       volumes:
         - name: config-volume
           configMap:
-            name: local-path-config
+            name: local-path-immediate-config
         - name: local-path
           hostPath:
-            path: /opt/local-path-provisioner
+            path: /opt/local-path-immediate
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: local-path-config
+  name: local-path-immediate-config
   namespace: local-path-immediate-ns
 data:
   config.json: |
@@ -92,7 +94,7 @@ data:
       "nodePathMap":[
         {
           "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
-          "paths":["/opt/local-path-provisioner"]
+          "paths":["/opt/local-path-immediate"]
         }
       ]
     }
