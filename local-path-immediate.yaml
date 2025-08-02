@@ -22,8 +22,8 @@ data:
           ]
         }
       }
-    } 
-    setup: |-
+    }
+  setup: |-
     #!/bin/sh
     set -eu
     mkdir -m 0777 -p "$VOL_DIR"
@@ -37,10 +37,34 @@ data:
     metadata:
       name: helper-pod
     spec:
+      priorityClassName: system-node-critical
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: helper-pod
           image: busybox
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: vol
+              mountPath: /mnt
+            - name: script
+              mountPath: /scripts
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: vol
+          hostPath:
+            path: /opt/local-path-immediate
+        - name: script
+          configMap:
+            name: local-path-immediate-config
+            items:
+              - key: setup
+                path: setup
+              - key: teardown
+                path: teardown
 
 ---
 apiVersion: v1
@@ -58,7 +82,6 @@ rules:
   - apiGroups: [""]
     resources: ["nodes", "persistentvolumeclaims", "persistentvolumes", "configmaps", "pods", "pods/log", "events"]
     verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
-
   - apiGroups: ["storage.k8s.io"]
     resources: ["storageclasses"]
     verbs: ["get", "list", "watch"]
