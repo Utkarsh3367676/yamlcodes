@@ -12,14 +12,18 @@ metadata:
 data:
   config.json: |-
     {
-      "nodePathMap": [
-        {
-          "node": "DEFAULT_PATH_FOR_NON_LISTED_NODES",
-          "paths": ["/opt/local-path-immediate"]
+      "storageClassConfigs": {
+        "local-path-immediate": {
+          "nodePathMap": [
+            {
+              "node": "ubuntuk8s",
+              "paths": ["/opt/local-path-immediate"]
+            }
+          ]
         }
-      ]
-    }
-  setup: |-
+      }
+    } 
+    setup: |-
     #!/bin/sh
     set -eu
     mkdir -m 0777 -p "$VOL_DIR"
